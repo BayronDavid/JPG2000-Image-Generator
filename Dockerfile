@@ -7,6 +7,9 @@ WORKDIR /app
 # Copiar los archivos de la aplicación al contenedor
 COPY . /app
 
+# Copiar el archivo de configuración de Streamlit al contenedor
+COPY config.toml /root/.streamlit/
+
 # Instalar las dependencias requeridas
 RUN pip install requests pillow streamlit
 

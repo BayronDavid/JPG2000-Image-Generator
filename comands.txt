@@ -1,0 +1,1 @@
+streamlit run app.py --server.maxMessageSize 2048
