@@ -148,7 +148,7 @@ def main():
     lado_total_km = st.number_input('Lado (km):', value=1)
     borde_recorte_x = st.number_input('Borde de recorte X:', value=218)
     borde_recorte_y = st.number_input('Borde de recorte Y:', value=218)
-    api_key = st.text_input('API Key:', value='AIzaSyAqoHZdZiLpBu024UBXHas-F51UjnwuZvA') #Bayron
+    api_key = st.text_input('API Key:', value='') #Bayron
     scale = st.selectbox('Escala:', options=[1, 2], index=1)
     # Ajustar automáticamente el tamaño máximo en función de la escala
     size = ajustar_tamaño_maximo(scale)
