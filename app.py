@@ -7,6 +7,8 @@ import base64
 from PIL import Image, ImageFilter, ImageEnhance
 from PIL.Image import Resampling
 import numpy as np
+import imageio
+
 
 def obtener_imagen_cuadrante(api_key, latitud, longitud, lado_km, size, scale=4, maptype="satellite"):
     lado_km_ajustado = lado_km * 1.02
@@ -135,19 +137,18 @@ def aplicar_filtros(imagen, intensidad_suavizado=2):
     return imagen
 
 def main():
-    st.title('Generador de Texturas Segmentadas')
+    st.title('Generador de imagnes satelitales JP2000')
     
     st.sidebar.header('Info')
     st.sidebar.markdown('**Parametros** Descripcion.')
   
     # Entradas
-    coordenadas = st.text_input('Coordenadas (latitud, longitud):', value='3.252623, -76.529825')
+    coordenadas = st.text_input('Coordenadas (latitud, longitud):', value='4.9422222, -74.0127778')
     latitud_centro, longitud_centro = [float(x) for x in coordenadas.split(',')]
     lado_total_km = st.number_input('Lado (km):', value=1)
     borde_recorte_x = st.number_input('Borde de recorte X:', value=218)
     borde_recorte_y = st.number_input('Borde de recorte Y:', value=218)
-    api_key = st.text_input('API Key:', value='AIzaSyDcWkTQcpUOYR7iTHUYLIBdkSxsc63V-E4') #Workobot
-    # api_key = st.text_input('API Key:', value='AIzaSyAqoHZdZiLpBu024UBXHas-F51UjnwuZvA') #Bayron
+    api_key = st.text_input('API Key:', value='AIzaSyAqoHZdZiLpBu024UBXHas-F51UjnwuZvA') #Bayron
     scale = st.selectbox('Escala:', options=[1, 2], index=1)
     # Ajustar automáticamente el tamaño máximo en función de la escala
     size = ajustar_tamaño_maximo(scale)
@@ -186,10 +187,17 @@ def main():
 
         if 'imagen_final' in st.session_state and st.session_state.imagen_final:
             final_width, final_height = st.session_state.imagen_final.size
-            filename = f"{lado_total_km}KM x{lado_total_km}KM Scale_{scale} Seg_{segmentos} {final_width}x{final_height}.png"
+            filename = f"{lado_total_km}KM x{lado_total_km}KM Scale_{scale} Seg_{segmentos} {final_width}x{final_height}.jp2"
+            
             buffered = BytesIO()
-            st.session_state.imagen_final.save(buffered, format="PNG")
-            st.download_button(label="Procesar y descargar imagen", data=buffered.getvalue(), file_name=filename, mime="image/png")
+            
+            # Convertir la imagen PIL a un arreglo de numpy
+            np_image = np.array(st.session_state.imagen_final)
+            
+            # Guardar en formato JP2 con múltiples resoluciones
+            imageio.imwrite(buffered, np_image, format='JP2', numresolutions=5)
+            
+            st.download_button(label="Procesar y descargar imagen", data=buffered.getvalue(), file_name=filename, mime="image/jp2")
             st.warning('Esto puede tardar dependiendo la cantidad de segmentos y la capacidad de computo. Despues de descargar la pagina se recargara y perdera los datos')
 
 if __name__ == "__main__":
